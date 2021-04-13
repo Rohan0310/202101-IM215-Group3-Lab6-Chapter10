@@ -78,6 +78,9 @@ function visit_data(data) {
   });
   $("#visitsBody").html(table_visit);
   filtercall(data);
+  piechart(data);
+  columnChart(data);
+  geoChart(data);
  
 }
 
@@ -105,4 +108,150 @@ function filtercall(data) {
     visit_data(random);
   });
 }
+function piechart(data) {
+  google.charts.load("current", { packages: ["corechart"] });
+  google.charts.setOnLoadCallback(drawChart);
+  var display = [];
+
+  data.forEach((element) => {
+    if (
+      display.length != 0 &&
+      display.map((i) => i[0]).includes(element.browser)
+    ) {
+      // alert(element.browser);
+      var a = display.map((i) => i[0]).indexOf(element.browser.toString());
+      //alert(a);
+      display[a][1]++;
+    } else {
+      var emptyArray = [];
+      emptyArray.push(element.browser);
+      emptyArray.push(1);
+
+      display.push(emptyArray);
+      console.log(display);
+    }
+  });
+
+  console.log(display);
+
+  function drawChart() {
+    var data = google.visualization.arrayToDataTable(
+      [["", ""]].concat(display)
+    );
+
+    var options = {
+      title: "Browser Visit Count",
+    };
+
+    var chart = new google.visualization.PieChart(
+      document.getElementById("piechart")
+    );
+
+    chart.draw(data, options);
+  }
+}
+
+function columnChart(data) {
+  google.charts.load("current", { packages: ["corechart"] });
+  google.charts.setOnLoadCallback(drawChart);
+
+  var display = [];
+
+  data.forEach((element) => {
+    if (
+      display.length != 0 &&
+      display.map((i) => i[0]).includes(element.operatingSystem)
+    ) {
+      // alert(element.browser);
+      var a = display
+        .map((i) => i[0])
+        .indexOf(element.operatingSystem.toString());
+      //alert(a);
+      display[a][1]++;
+    } else {
+      var emptyArray = [];
+      emptyArray.push(element.operatingSystem);
+      emptyArray.push(1);
+
+      display.push(emptyArray);
+      console.log(display);
+    }
+  });
+
+  function drawChart() {
+    var data = google.visualization.arrayToDataTable(
+      [["", ""]].concat(display)
+    );
+
+    var view = new google.visualization.DataView(data);
+    view.setColumns([
+      0,
+      1,
+      {
+        calc: "stringify",
+        sourceColumn: 1,
+        type: "string",
+        role: "annotation",
+      },
+    ]);
+
+    var options = {
+      title: "Density of Precious Metals, in g/cm^3",
+      width: 600,
+      height: 400,
+      bar: { groupWidth: "95%" },
+      legend: { position: "none" },
+    };
+    var chart = new google.visualization.ColumnChart(
+      document.getElementById("columnchart")
+    );
+    chart.draw(view, options);
+  }
+}
+
+function geoChart(data) {
+  google.charts.load("current", {
+    packages: ["geochart"],
+    // Note: you will need to get a mapsApiKey for your project.
+    // See: https://developers.google.com/chart/interactive/docs/basic_load_libs#load-settings
+    mapsApiKey: "AIzaSyD-9tSrke72PouQMnMX-a7eZSW0jkFMBWY",
+  });
+  google.charts.setOnLoadCallback(drawRegionsMap);
+
+  var display = [];
+
+  data.forEach((element) => {
+    if (
+      display.length != 0 &&
+      display.map((i) => i[0]).includes(element.country)
+    ) {
+      // alert(element.browser);
+      var a = display.map((i) => i[0]).indexOf(element.country.toString());
+      //alert(a);
+      display[a][1]++;
+    } else {
+      var emptyArray = [];
+      emptyArray.push(element.country);
+      emptyArray.push(1);
+
+      display.push(emptyArray);
+      console.log(display);
+    }
+  });
+
+  function drawRegionsMap() {
+    var data = google.visualization.arrayToDataTable(
+      [["", ""]].concat(display)
+    );
+
+    var options = {};
+
+    var chart = new google.visualization.GeoChart(
+      document.getElementById("geochart")
+    );
+
+    chart.draw(data, options);
+  }
+}
+
 
