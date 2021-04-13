@@ -54,3 +54,55 @@ $(document).ready(function () {
     }
   );
 });
+
+$(document).ready(function () {
+  $.getJSON(
+    "http://www.randyconnolly.com/funwebdev/services/visits/visits.php?continent=EU&month=1&limit=100",
+    function (data) {
+      visit_data(data);
+    }
+  );
+});
+
+function visit_data(data) {
+  var table_visit = "";
+
+  $.each(data, function (key, visit) {
+    table_visit += "<tr>";
+    table_visit += "<td>" + visit.id + "</td>";
+    table_visit += "<td>" + visit.visit_date + "</td>";
+    table_visit += "<td>" + visit.country + "</td>";
+    table_visit += "<td>" + visit.browser + "</td>";
+    table_visit += "<td>" + visit.operatingSystem + "</td>";
+    table_visit += "</tr>";
+  });
+  $("#visitsBody").html(table_visit);
+  filtercall(data);
+ 
+}
+
+function filtercall(data) {
+  $("#filterBrowser, #filterCountry, #filterOS").on("change", function (e) {
+    var filters = {};
+    if (e.target.value == 0) {
+      delete filters[e.target.id];
+    } else {
+      filters[e.target.id] = e.target.value;
+    }
+    var random = $.grep(data, function (el, i) {
+      var result = true;
+      if (filters[e.target.id] && e.target.id == "filterBrowser") {
+        if (filters[e.target.id] != el.browser_id) result = false;
+      }
+      if (filters[e.target.id] && e.target.id == "filterCountry") {
+        if (filters[e.target.id] != el.country) result = false;
+      }
+      if (filters[e.target.id] && e.target.id == "filterOS") {
+        if (filters[e.target.id] != el.os_id) result = false;
+      }
+      return result;
+    });
+    visit_data(random);
+  });
+}
+
